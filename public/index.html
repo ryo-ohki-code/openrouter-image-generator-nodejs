@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>OpenRouter Image Generator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<style>
+		:root {
+			--bg-color: #1e1e2f;
+			--card-bg: #2a2a40;
+			--text-color: #ffffff;
+			--accent-color: #6c63ff;
+			--border-radius: 12px;
+			--shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'Segoe UI', sans-serif;
+			background-color: var(--bg-color);
+			color: var(--text-color);
+			padding: 2rem;
+			min-height: 100vh;
+			line-height: 1.6;
+		}
+
+		h1,
+		h3 {
+			text-align: center;
+			margin-bottom: 1.5rem;
+		}
+
+		form {
+			background-color: var(--card-bg);
+			padding: 2rem;
+			border-radius: var(--border-radius);
+			max-width: 600px;
+			margin: auto;
+			box-shadow: var(--shadow);
+		}
+
+		label {
+			font-weight: bold;
+			display: block;
+			margin-top: 1rem;
+		}
+
+		textarea,
+		select,
+		input[type="file"],
+		button {
+			width: 100%;
+			padding: 0.75rem;
+			margin-top: 0.5rem;
+			border: none;
+			border-radius: 8px;
+			background-color: #33334d;
+			color: white;
+			font-size: 1rem;
+		}
+
+		button {
+			background-color: var(--accent-color);
+			color: white;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background 0.3s ease;
+			margin-top: 1.5rem;
+		}
+
+		button:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		button:hover:not(:disabled) {
+			background-color: #5a54d9;
+		}
+
+		.result-container {
+			margin-top: 2rem;
+			text-align: center;
+		}
+
+		.result-container img {
+			max-width: 100%;
+			border-radius: 10px;
+			margin: 1rem auto;
+			box-shadow: var(--shadow);
+		}
+
+		a {
+			display: block;
+			text-align: center;
+			color: var(--accent-color);
+			margin-top: 1rem;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+
+		#referenceInputsContainer input {
+			margin-bottom: 0.75rem;
+		}
+
+		#addReferenceBtn {
+			background-color: transparent;
+			border: 2px dashed var(--accent-color);
+			color: var(--accent-color);
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			margin-top: 0.5rem;
+		}
+
+		#addReferenceBtn:hover {
+			background-color: var(--accent-color);
+			color: #fff;
+		}
+
+		.image-preview-container {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			margin-top: 10px;
+		}
+
+		.image-preview-wrapper {
+			position: relative;
+			display: inline-block;
+		}
+
+		.image-preview-wrapper img {
+			width: 80px;
+			height: 80px;
+			object-fit: cover;
+			border-radius: 5px;
+			border: 1px solid #ddd;
+		}
+
+		.image-preview-wrapper button {
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			background: red;
+			color: white;
+			border: none;
+			border-radius: 50%;
+			width: 20px;
+			height: 20px;
+			font-size: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>🎨 OpenRouter Image Generator</h1>
+
+	<a href="/history.html">📜 View History</a>
+	<br>
+
+	<form id="genForm">
+		<label for="model">AI Model:</label>
+		<select id="model" name="model">
+			<option value="flux.2-pro">Flux 2 Pro</option>
+			<option value="flux.2-flex">Flux 2 Flex</option>
+			<option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
+			<option value="gemini-3-pro-image-preview">Gemini 3 Pro Image Preview</option>
+			<option value="gpt-5-image-mini">GPT-5 Image Mini</option>
+			<option value="gpt-5-image">GPT-5 Image</option>
+		</select>
+
+		<label for="prompt">Prompt:</label>
+		<textarea id="prompt" name="prompt" rows="7" placeholder="Describe what you'd like to generate..."
+			required></textarea>
+
+		<label for="ratio">Aspect Ratio:</label>
+		<select id="ratio" name="ratio">
+			<option value="1:1" selected>1:1 (1024×1024)</option>
+			<option value="2:3">2:3 (832×1248)</option>
+			<option value="3:2">3:2 (1248×832)</option>
+			<option value="3:4">3:4 (864×1184)</option>
+			<option value="4:3">4:3 (1184×896)</option>
+			<option value="4:5">4:5 (896×1152)</option>
+			<option value="5:4">5:4 (1152×896)</option>
+			<option value="9:16">9:16 (768×1344)</option>
+			<option value="16:9">16:9 (1344×768)</option>
+			<option value="21:9">21:9 (1536×672)</option>
+		</select>
+
+		<label for="referenceImages">Reference Image(s):</label>
+		<!-- <input type="file" id="referenceImages" name="referenceImages" multiple accept="image/*" /> -->
+		<div id="referenceInputsContainer">
+			<div class="reference-input-group">
+				<input type="file" name="referenceImages" multiple accept="image/*" />
+				<div class="image-preview-container"></div>
+			</div>
+		</div>
+		<button type="button" id="addReferenceBtn">➕ Add Another</button>
+
+		<button type="submit">📄 Generate</button>
+	</form>
+
+	<div class="result-container" id="result"></div>
+
+	<script>
+		document.getElementById('genForm').addEventListener('submit', async e => {
+			e.preventDefault();
+			const formData = new FormData(e.target);
+			document.querySelector('button[type="submit"]').disabled = true;
+
+			const res = await fetch('/generate', {
+				method: 'POST',
+				body: formData
+			});
+
+			const data = await res.json();
+
+			if (data.success) {
+				const html = data.urls.map((url, i) =>
+					`<img src="${url}" alt="Generated image #${i + 1}" loading="lazy">`).join('');
+				document.getElementById('result').innerHTML = `
+					<h3>✨ Generated Images</h3>${html}`;
+			} else {
+				alert("⚠ Error: " + data.error);
+			}
+
+			document.querySelector('button[type="submit"]').disabled = false;
+		});
+
+		function handleFileInputChange(inputEl) {
+			const container = inputEl.nextElementSibling; // image-preview-container
+			container.innerHTML = ""; // clear previous previews
+
+			const files = inputEl.files;
+
+			if (files) {
+				for (let i = 0; i < files.length; i++) {
+					const file = files[i];
+					if (!file.type.startsWith("image/")) continue;
+
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						const previewWrapper = document.createElement("div");
+						previewWrapper.className = "image-preview-wrapper";
+
+						const img = document.createElement("img");
+						img.src = e.target.result;
+						img.alt = file.name;
+
+						const removeBtn = document.createElement("button");
+						removeBtn.innerHTML = "✕";
+						removeBtn.onclick = () => {
+							// Remove from file list (not directly supported, recreate FileList)
+							removeImageFromFileInput(inputEl, file);
+							handleFileInputChange(inputEl); // re-render preview
+						};
+
+						previewWrapper.appendChild(img);
+						previewWrapper.appendChild(removeBtn);
+						container.appendChild(previewWrapper);
+					};
+					reader.readAsDataURL(file);
+				}
+			}
+		}
+
+		function removeImageFromFileInput(inputEl, fileToRemove) {
+			const dt = new DataTransfer();
+			const files = inputEl.files;
+
+			for (let i = 0; i < files.length; i++) {
+				if (files[i] !== fileToRemove) {
+					dt.items.add(files[i]);
+				}
+			}
+
+			inputEl.files = dt.files;
+		}
+
+		document.getElementById("addReferenceBtn").addEventListener("click", () => {
+			const container = document.getElementById("referenceInputsContainer");
+			const newGroup = document.createElement("div");
+			newGroup.className = "reference-input-group";
+
+			const newInput = document.createElement("input");
+			newInput.type = "file";
+			newInput.name = "referenceImages";
+			newInput.multiple = true;
+			newInput.accept = "image/*";
+
+			newInput.onchange = () => handleFileInputChange(newInput);
+
+			const previewContainer = document.createElement("div");
+			previewContainer.className = "image-preview-container";
+
+			newGroup.appendChild(newInput);
+			newGroup.appendChild(previewContainer);
+			container.appendChild(newGroup);
+		});
+		document.querySelectorAll('input[name="referenceImages"]').forEach(input => {
+			input.onchange = () => handleFileInputChange(input);
+		});
+	</script>
+</body>
+
+</html>
