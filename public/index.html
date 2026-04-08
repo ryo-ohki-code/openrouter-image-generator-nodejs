@@ -168,18 +168,13 @@
 <body>
 	<h1>🎨 OpenRouter Image Generator</h1>
 
-	<a href="/history.html">📜 View History</a>
+	<a href="/history.html" id="history">📜 View History</a>
 	<br>
 
 	<form id="genForm">
 		<label for="model">AI Model:</label>
 		<select id="model" name="model">
-			<option value="flux.2-pro">Flux 2 Pro</option>
-			<option value="flux.2-flex">Flux 2 Flex</option>
-			<option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image</option>
-			<option value="gemini-3-pro-image-preview">Gemini 3 Pro Image Preview</option>
-			<option value="gpt-5-image-mini">GPT-5 Image Mini</option>
-			<option value="gpt-5-image">GPT-5 Image</option>
+			<option value="">Loading models...</option>
 		</select>
 
 		<label for="prompt">Prompt:</label>
@@ -188,20 +183,20 @@
 
 		<label for="ratio">Aspect Ratio:</label>
 		<select id="ratio" name="ratio">
-			<option value="1:1" selected>1:1 (1024×1024)</option>
-			<option value="2:3">2:3 (832×1248)</option>
-			<option value="3:2">3:2 (1248×832)</option>
-			<option value="3:4">3:4 (864×1184)</option>
-			<option value="4:3">4:3 (1184×896)</option>
-			<option value="4:5">4:5 (896×1152)</option>
-			<option value="5:4">5:4 (1152×896)</option>
-			<option value="9:16">9:16 (768×1344)</option>
-			<option value="16:9">16:9 (1344×768)</option>
-			<option value="21:9">21:9 (1536×672)</option>
+			<option value="1:1" selected>1:1 (1920x1920)</option>
+			<option value="2:3">2:3 (1280x1920)</option>
+			<option value="3:2">3:2 (1920x1280)</option>
+			<option value="3:4">3:4 (1440x1920)</option>
+			<option value="4:3">4:3 (1920x1440)</option>
+			<option value="4:5">4:5 (1536x1920)</option>
+			<option value="5:4">5:4 (1920x1536)</option>
+			<option value="9:16">9:16 (1072x1920)</option>
+			<option value="16:9">16:9 (1920x1072)</option>
+			<option value="21:9">21:9 (?x?)</option>
 		</select>
 
 		<label for="referenceImages">Reference Image(s):</label>
-		<!-- <input type="file" id="referenceImages" name="referenceImages" multiple accept="image/*" /> -->
+
 		<div id="referenceInputsContainer">
 			<div class="reference-input-group">
 				<input type="file" name="referenceImages" multiple accept="image/*" />
@@ -210,15 +205,43 @@
 		</div>
 		<button type="button" id="addReferenceBtn">➕ Add Another</button>
 
+		<!-- Output Format -->
+		<label for="outputFormat">Output Format:</label>
+		<select id="outputFormat" name="outputFormat">
+			<option value="png" selected>PNG (lossless)</option>
+			<option value="jpeg">JPEG (smaller)</option>
+			<option value="webp">WebP (modern)</option>
+		</select>
+
+		<!-- Transparent Background -->
+		<label>
+			<input type="checkbox" id="transparentBg" name="transparentBg">
+			Transparent background (only for PNG)
+		</label>
+
+		<!-- Optional Seed (for reproducibility) -->
+		<label for="seed">Seed (optional, leave blank for random):</label>
+		<input type="number" id="seed" name="seed" placeholder="e.g., 12345" min="0" max="999999">
+
+		<!-- Saffety tolerence -->
+		<label for="safetyTolerance">Tolerance moderation level (0 being most strict, 5 being least strict.):</label>
+		<input type="number" id="safetyTolerance" name="safetyTolerance" placeholder="e.g., 2" min="0" max="5" value="5">
+
 		<button type="submit">📄 Generate</button>
 	</form>
 
 	<div class="result-container" id="result"></div>
 
+
 	<script>
 		document.getElementById('genForm').addEventListener('submit', async e => {
 			e.preventDefault();
 			const formData = new FormData(e.target);
+
+			// Prevent history access during generation
+			document.getElementById('history').onclick = function () {
+				return false;
+			};
 			document.querySelector('button[type="submit"]').disabled = true;
 
 			const res = await fetch('/generate', {
@@ -237,6 +260,7 @@
 				alert("⚠ Error: " + data.error);
 			}
 
+			document.getElementById('history').onclick = null;
 			document.querySelector('button[type="submit"]').disabled = false;
 		});
 
@@ -314,6 +338,42 @@
 			input.onchange = () => handleFileInputChange(input);
 		});
 	</script>
+
+	<script>
+		// Fetch and populate model dropdown
+		document.addEventListener('DOMContentLoaded', async () => {
+			const modelSelect = document.getElementById('model');
+
+			try {
+				const res = await fetch('/api/models');
+				const models = await res.json();
+
+				modelSelect.innerHTML = '';
+				models.forEach(m => {
+					const opt = document.createElement('option');
+					opt.value = m.value;
+					opt.textContent = m.label;
+					modelSelect.appendChild(opt);
+				});
+
+				// Set default selection (e.g., Flux 2 Pro)
+				const defaultModel = models.find(m => m.value === 'flux-2-pro');
+				if (defaultModel) {
+					modelSelect.value = defaultModel.value;
+				}
+
+				// Update description on change
+				modelSelect.addEventListener('change', () => {
+					const selected = models.find(m => m.value === modelSelect.value);
+				});
+
+			} catch (err) {
+				console.error('Failed to load models:', err);
+				modelSelect.innerHTML = '<option value="">❌ Failed to load models</option>';
+			}
+		});
+	</script>
+
 </body>
 
 </html>
