@@ -10,7 +10,9 @@ If you want to try Flux 2 using OpenRouter, the Chat option is limited. This sim
 - Generate button sends request to OpenRouter API
 - Images are saved server-side in an images/ directory (with generation metadata)
 - History page shows previously generated images
+- API endpoint to list available models
 
+  
 ## Required packages:
 
 You'll need to install:
@@ -38,7 +40,25 @@ In `server.js` line 117, replace `process.env.OPENROUTER_API_KEY` with your actu
 Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
 ```
 
-Then run
+### Option 3: dotenv
+For a more robust approach, you can use a .env file with the dotenv package:
+
+Install dotenv:
+
+```bash
+npm install dotenv
+```
+
+Create a .env file in your project root:
+
+```
+OPENROUTER_API_KEY=sk-or-v1-YourApiKeyHere
+```
+
+Add require('dotenv').config(); at the top of your server.js file
+
+
+Run the server:
 ```bash
 node server.js
 ```
