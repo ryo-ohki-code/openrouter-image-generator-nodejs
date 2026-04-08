@@ -1,5 +1,8 @@
 # openrouter-image-generator-nodejs
-If you want to try Flux 2 using OpenRouter, the Chat option is limited. This simple server helps you generate images and navigate through the history. All OpenRouter image models are supported with reference images and aspect ratios.
+~~If you want to try Flux 2 using OpenRouter, the Chat option is limited.~~ This simple server helps you generate images and navigate through the history. All OpenRouter image models are supported with reference images and aspect ratios. (Last time I tried, OpenRouter removed flux2 from the /api/completion but other image models still work with the app)
+
+For Flux 2 use the new [flux2-api-image-generator-nodejs](https://github.com/ryo-ohki-code/flux2-api-image-generator-nodejs)
+
 
 ## Features:
 
