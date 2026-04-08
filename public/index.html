@@ -205,28 +205,6 @@
 		</div>
 		<button type="button" id="addReferenceBtn">➕ Add Another</button>
 
-		<!-- Output Format -->
-		<label for="outputFormat">Output Format:</label>
-		<select id="outputFormat" name="outputFormat">
-			<option value="png" selected>PNG (lossless)</option>
-			<option value="jpeg">JPEG (smaller)</option>
-			<option value="webp">WebP (modern)</option>
-		</select>
-
-		<!-- Transparent Background -->
-		<label>
-			<input type="checkbox" id="transparentBg" name="transparentBg">
-			Transparent background (only for PNG)
-		</label>
-
-		<!-- Optional Seed (for reproducibility) -->
-		<label for="seed">Seed (optional, leave blank for random):</label>
-		<input type="number" id="seed" name="seed" placeholder="e.g., 12345" min="0" max="999999">
-
-		<!-- Saffety tolerence -->
-		<label for="safetyTolerance">Tolerance moderation level (0 being most strict, 5 being least strict.):</label>
-		<input type="number" id="safetyTolerance" name="safetyTolerance" placeholder="e.g., 2" min="0" max="5" value="5">
-
 		<button type="submit">📄 Generate</button>
 	</form>
 
