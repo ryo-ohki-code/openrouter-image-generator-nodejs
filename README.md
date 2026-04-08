@@ -44,13 +44,11 @@ Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
 For a more robust approach, you can use a .env file with the dotenv package:
 
 Install dotenv:
-
 ```bash
 npm install dotenv
 ```
 
 Create a .env file in your project root:
-
 ```
 OPENROUTER_API_KEY=sk-or-v1-YourApiKeyHere
 ```
@@ -58,7 +56,7 @@ OPENROUTER_API_KEY=sk-or-v1-YourApiKeyHere
 Add require('dotenv').config(); at the top of your server.js file
 
 
-Run the server:
+### Run the server:
 ```bash
 node server.js
 ```
