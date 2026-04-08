@@ -36,9 +36,11 @@ async function encodeImageToBase64(imagePath, maxSize = 1024) {
 	return resizedImage.toString('base64');
 }
 
+
 const OPENROUTER_IMAGE_MODELS = {
-	'flux.2-pro': 'black-forest-labs/flux.2-pro',
-	'flux.2-flex': 'black-forest-labs/flux.2-flex',
+	// 'flux.2-pro': 'black-forest-labs/flux.2-pro',
+	// 'flux.2-flex': 'black-forest-labs/flux.2-flex',
+	'nano-banana-2': 'google/gemini-3.1-flash-image-preview',
 	'gemini-2.5-flash-image': 'google/gemini-2.5-flash-image',
 	'gemini-3-pro-image-preview': 'google/gemini-3-pro-image-preview',
 	'gpt-5-image-mini': 'openai/gpt-5-image-mini',
@@ -46,17 +48,23 @@ const OPENROUTER_IMAGE_MODELS = {
 };
 
 const ASPECT_RATIO_MAP = {
-	"1:1": "1024x1024",
-	"2:3": "832x1248",
-	"3:2": "1248x832",
-	"3:4": "864x1184",
-	"4:3": "1184x896",
-	"4:5": "896x1152",
-	"5:4": "1152x896",
-	"9:16": "768x1344",
-	"16:9": "1344x768",
-	"21:9": "1536x672"
+	"1:1": "1920x1920",
+	"2:3": "1280x1920",
+	"3:2": "1920x1280",
+	"3:4": "1440x1920",
+	"4:3": "1920x1440",
+	"4:5": "1536x1920",
+	"5:4": "1920x1536",
+	"9:16": "1072x1920",
+	"16:9": "1920x1072",
+	"21:9": "??x??"
 };
+
+const getImageDimensions = async (imagePath) => {
+    const metadata = await sharp(imagePath).metadata();
+    return { width: metadata.width, height: metadata.height };
+};
+
 
 // --- Route to handle generation
 app.post('/generate', upload.array('referenceImages'), async (req, res) => {
@@ -88,7 +96,9 @@ app.post('/generate', upload.array('referenceImages'), async (req, res) => {
 	try {
 		if (referencePaths.length > 0) {
 			for (const imagePath of referencePaths) {
-				const imageData = await encodeImageToBase64(imagePath, 1024);
+				const { width, height } = await getImageDimensions(imagePath);
+				const maxDimension = Math.max(width, height);
+				const imageData = await encodeImageToBase64(imagePath, maxDimension);
 				userMessageContent[0].content.push({
 					type: "image_url",
 					image_url: {
@@ -171,6 +181,16 @@ app.get('/api/history', async (req, res) => {
 		res.status(500).json({ error: error.message });
 	}
 });
+
+// GET list of available models
+app.get('/api/models', (req, res) => {
+	const models = Object.keys(OPENROUTER_IMAGE_MODELS).map(value => ({
+		value,
+		label: value.replace('.', ' ').replace(/-/g, ' ')
+	}));
+	res.json(models);
+});
+
 
 // Start the server
 app.listen(PORT, () => {
