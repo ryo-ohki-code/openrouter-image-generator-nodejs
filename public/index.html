@@ -54,6 +54,7 @@
 		textarea,
 		select,
 		input[type="file"],
+		input[type="number"],
 		button {
 			width: 100%;
 			padding: 0.75rem;
@@ -168,7 +169,7 @@
 <body>
 	<h1>🎨 OpenRouter Image Generator</h1>
 
-	<a href="/history.html" id="history">📜 View History</a>
+	<a href="/history.html" id="history" target="_blank">📜 View History</a>
 	<br>
 
 	<form id="genForm">
@@ -183,17 +184,26 @@
 
 		<label for="ratio">Aspect Ratio:</label>
 		<select id="ratio" name="ratio">
-			<option value="1:1" selected>1:1 (1920x1920)</option>
-			<option value="2:3">2:3 (1280x1920)</option>
-			<option value="3:2">3:2 (1920x1280)</option>
-			<option value="3:4">3:4 (1440x1920)</option>
-			<option value="4:3">4:3 (1920x1440)</option>
-			<option value="4:5">4:5 (1536x1920)</option>
-			<option value="5:4">5:4 (1920x1536)</option>
-			<option value="9:16">9:16 (1072x1920)</option>
-			<option value="16:9">16:9 (1920x1072)</option>
-			<option value="21:9">21:9 (?x?)</option>
+			<option value="1:1" selected>1:1</option>
+			<option value="2:3">2:3</option>
+			<option value="3:2">3:2</option>
+			<option value="3:4">3:4</option>
+			<option value="4:3">4:3</option>
+			<option value="4:5">4:5</option>
+			<option value="5:4">5:4</option>
+			<option value="9:16">9:16</option>
+			<option value="16:9">16:9</option>
+			<option value="21:9">21:9</option>
 		</select>
+
+		<label for="resolution">Image Resolution:</label>
+		<select id="resolution" name="resolution">
+			<option value="1K" selected>1K default</option>
+			<option value="2K">2K</option>
+			<option value="4K">4K</option>
+
+		</select>
+
 
 		<label for="referenceImages">Reference Image(s):</label>
 
@@ -204,6 +214,24 @@
 			</div>
 		</div>
 		<button type="button" id="addReferenceBtn">➕ Add Another</button>
+
+		<!-- Output Format -->
+		<!-- <label for="outputFormat">Output Format:</label>
+		<select id="outputFormat" name="outputFormat">
+			<option value="png" selected>PNG (lossless)</option>
+			<option value="jpeg">JPEG (smaller)</option>
+			<option value="webp">WebP (modern)</option>
+		</select> -->
+
+		<!-- Transparent Background -->
+		<!-- <label>
+			<input type="checkbox" id="transparentBg" name="transparentBg">
+			Transparent background (only for PNG)
+		</label> -->
+
+		<!-- Optional Seed (for reproducibility) -->
+		<label for="seed">Seed (optional, leave blank for random):</label>
+		<input type="number" id="seed" name="seed" placeholder="e.g., 12345" min="0" max="999999">
 
 		<button type="submit">📄 Generate</button>
 	</form>
@@ -217,9 +245,9 @@
 			const formData = new FormData(e.target);
 
 			// Prevent history access during generation
-			document.getElementById('history').onclick = function () {
-				return false;
-			};
+			// document.getElementById('history').onclick = function () {
+			// 	return false;
+			// };
 			document.querySelector('button[type="submit"]').disabled = true;
 
 			const res = await fetch('/generate', {
@@ -238,7 +266,7 @@
 				alert("⚠ Error: " + data.error);
 			}
 
-			document.getElementById('history').onclick = null;
+			// document.getElementById('history').onclick = null;
 			document.querySelector('button[type="submit"]').disabled = false;
 		});
 
