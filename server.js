@@ -40,9 +40,11 @@ async function encodeImageToBase64(imagePath, maxSize = 1024) {
 const OPENROUTER_IMAGE_MODELS = {
 	// 'flux.2-pro': 'black-forest-labs/flux.2-pro',
 	// 'flux.2-flex': 'black-forest-labs/flux.2-flex',
-	'nano-banana-2': 'google/gemini-3.1-flash-image-preview',
-	'gemini-2.5-flash-image': 'google/gemini-2.5-flash-image',
+	// 'flux.2-max': 'black-forest-labs/flux.2-max',
+	'gemini-3.1-nano-banana': 'google/gemini-3.1-flash-image-preview',
 	'gemini-3-pro-image-preview': 'google/gemini-3-pro-image-preview',
+	'gemini-2.5-flash-image': 'google/gemini-2.5-flash-image',
+	'gpt-5.4-image 2': 'openai/gpt-5.4-image-2',
 	'gpt-5-image-mini': 'openai/gpt-5-image-mini',
 	'gpt-5-image': 'openai/gpt-5-image'
 };
@@ -74,7 +76,7 @@ app.post('/generate', upload.array('referenceImages'), async (req, res) => {
 	const referencePaths = uploadedFiles.map(f => f.path);
 
 	const selectedModel = OPENROUTER_IMAGE_MODELS[model] || OPENROUTER_IMAGE_MODELS['flux.2-pro'];
-	const seed = Math.floor(Math.random() * 1000000);
+	const seed = req.body.seed ? parseInt(req.body.seed, 10) : Math.floor(Math.random() * 1000000);
 
 	const configContent = {
 		prompt,
@@ -114,7 +116,8 @@ app.post('/generate', upload.array('referenceImages'), async (req, res) => {
 			seed: seed,
 			modalities: ['image', 'text'],
 			image_config: {
-				aspect_ratio: imageRatioApi
+				aspect_ratio: imageRatioApi,
+				image_size: req.body.resolution ? req.body.resolution : '1K' // 1K default - 2K - 4K
 			},
 			stream: false
 		}, {
